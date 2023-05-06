@@ -91,7 +91,9 @@ export default defineComponent({
     let nowChoseLabel: HTMLDivElement | null = null;
     let nowChose: string | null = null;
     let score: number = 0;
-
+	// todo:控制当前的操作是否完成
+	let optionsControl: string[] = [];
+	let optionComplete = ref(false)
     let position1 = [
       [3490, 997, -341],
       [2375, 580, -681],
@@ -183,9 +185,19 @@ export default defineComponent({
         nowChoseLabel = null;
       }
       if (nowChose) {
-        player.scene.getObjectByName("m" + nowChose).visible = true;
+        player.scene.getObjectByName("m" + nowChose).visible = false;
         nowChose = null;
       }
+	  // todo: 所有的标签全部显示一遍
+	  for(let i = 1; i <= 10; i++){
+	  	var label: any = player.scene.getObjectByName("m" + i);
+	  	if(label){
+	  		label.visible = true;
+	  	}
+	  }
+	  // 清空操作
+	  optionsControl = [];
+	  optionComplete.value = false;
     }
     let q1: any = player.scene.getObjectByName("qq1");
     let q2: any = player.scene.getObjectByName("qq2");
@@ -314,6 +326,14 @@ export default defineComponent({
         if (score === 10) {
           ElMessage.success('工作站布局安装点完成!')
         }
+		// todo: 添加操作的标签
+		if(nowChose !== null){
+			console.log("添加")
+			optionsControl.push(nowChose);
+			if(optionsControl.length == 10){
+				optionComplete.value = true;
+			}
+		}
         return;
         // nowChoseLabel!.style.display = "none"
         // nowChoseLabel = null
@@ -360,6 +380,14 @@ export default defineComponent({
           if (score === 10) {
             ElMessage.success('工作站布局安装点完成!')
           }
+		  // todo: 添加操作的标签
+		  if(nowChose !== null){
+		  	console.log("添加")
+		  	optionsControl.push(nowChose);
+		  	if(optionsControl.length == 10){
+		  		optionComplete.value = true;
+		  	}
+		  }
         }
       }
 
@@ -417,7 +445,8 @@ export default defineComponent({
       typeChoseShow,
       setPosition,
       goBack,
-      changeNum
+      changeNum,
+	  optionComplete
     };
   },
 });
@@ -440,7 +469,10 @@ export default defineComponent({
       <p>请选择正确的单元进行布置安装！</p>
       <div class="btn" @click="showtips = false">确定</div>
     </div>
-
+	<div class="tip_box" v-if="optionComplete">
+		<p>当前布局部署完成！</p>
+		<div class="btn" @click="optionComplete = false">确认</div>
+	</div>
     <div class="tip_box" v-if="showtips && bigType === '在线考核'">
       <p>未能选择正确的单元进行布置安装！</p>
       <div class="btn" @click="showtips = false">继续考核</div>
