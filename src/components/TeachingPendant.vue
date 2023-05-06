@@ -34,6 +34,8 @@ export default defineComponent({
     let topic = ref((window as any).topic);
     let showMenu = ref(false);
     let animateSwitch = ref(false);
+	//todo: 增加示教器面板折叠功能
+	let isFold = ref(false);
     let showSub = ref(false);
     let alp = 0.01;
     let blp = 0.01;
@@ -1006,6 +1008,7 @@ export default defineComponent({
     return {
       topic,
       // goTest,
+	  isFold,
       goBack,
       switchAction,
       switchZhou,
@@ -1089,7 +1092,10 @@ export default defineComponent({
           <div class="text_item">M 停止按钮</div>
         </div> -->
       </div>
-      <div class="left_box" v-if="topicNum >= 0 && topicNum !== 6">
+      <div class="left_control" v-if="topicNum >= 0 && topicNum !== 6" @click="isFold = !isFold">
+      	<div :class="!isFold ? 'fold': 'expand'"></div>
+      </div>
+      <div class="left_box" v-if="topicNum >= 0 && topicNum !== 6" v-show="!isFold">
         <!-- 菜单 -->
         <div class="menu_btn" v-if="topicNum === 34" @click="showMenu = !showMenu"></div>
         <div class="control_menu" v-if="showMenu && topicNum === 34">
@@ -1778,7 +1784,24 @@ export default defineComponent({
       width: 120px;
     }
   }
-
+.left_control{
+	position: relative;
+	width: 30px;
+	height: 30px;
+	top: -150px;
+	left: -15px;
+	cursor: pointer;
+	.fold{
+		width: 100%;
+		height: 100%;
+		background-image: url(fold.png);
+	}
+	.expand{
+		width: 100%;
+		height: 100%;
+		background-image: url(expand.png);
+	}
+}
   .left_box {
     width: 480px;
     height: 359px;

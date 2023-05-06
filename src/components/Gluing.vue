@@ -592,6 +592,8 @@ export default defineComponent({
       //   topicNum.value = 34
       // }
     }
+	//todo: 增加示教器面板折叠功能
+	let isFold = ref(false);
     const changeNum = (num: number): void => {
       topicNum.value = num;
     };
@@ -951,6 +953,7 @@ export default defineComponent({
     return {
       topic,
       // goTest,
+	  isFold,
       goBack,
       switchAction,
       switchZhou,
@@ -988,7 +991,10 @@ export default defineComponent({
         开始
       </div>
     </div>
-    <div class="left_box" v-if="!showHelp">
+    <div class="left_control" v-if="!showHelp" @click="isFold = !isFold">
+    	<div :class="!isFold ? 'fold': 'expand'"></div>
+    </div>
+    <div class="left_box" v-if="!showHelp" v-show="!isFold">
       <!-- 菜单 -->
       <!-- <div class="menu_btn" v-if="topicNum !== -1" @click="showMenu = !showMenu"></div> -->
       <div class="control_menu" v-if="showMenu">
@@ -1428,7 +1434,24 @@ export default defineComponent({
     cursor: pointer;
     background-color: #ffaf4c;
   }
-
+	.left_control{
+		position: relative;
+		width: 30px;
+		height: 30px;
+		top: -150px;
+		left: -15px;
+		cursor: pointer;
+		.fold{
+			width: 100%;
+			height: 100%;
+			background-image: url(fold.png);
+		}
+		.expand{
+			width: 100%;
+			height: 100%;
+			background-image: url(expand.png);
+		}
+	}
   .left_box {
     width: 480px;
     height: 359px;

@@ -40,7 +40,8 @@ export default defineComponent({
 
     let animateSwitch = ref(false);
     let bigType = $store.state.bigType
-
+	//todo: 增加示教器面板折叠功能
+	let isFold = ref(false);
     // function goTest(num: number) {
     //     console.log('gotest')
     //     emit('my-emit', num)
@@ -840,6 +841,7 @@ function upDown(type: string) {
     return {
       topic,
       // goTest,
+	  isFold,
       goBack,
       switchAction,
       switchZhou,
@@ -920,7 +922,10 @@ function upDown(type: string) {
       <!-- <img src="/topic1/t1-0.png" /> -->
       <!-- <div class="nextb" v-if="topicNum === 0" @click="topicNum++">开始</div> -->
     </div>
-    <div class="left_box" v-if="showlr">
+    <div class="left_control" v-if="showlr" @click="isFold = !isFold">
+    	<div :class="!isFold ? 'fold': 'expand'"></div>
+    </div>
+    <div class="left_box" v-if="showlr" v-show="!isFold">
       <!-- 操作机器人 -->
       <div
         class="robot_opt"
@@ -1346,7 +1351,26 @@ function upDown(type: string) {
       background-color: #ffaf4c;
     }
   }
+.left_control {
+			position: relative;
+			width: 30px;
+			height: 30px;
+			top: -150px;
+			left: -15px;
+			cursor: pointer;
 
+			.fold {
+				width: 100%;
+				height: 100%;
+				background-image: url(fold.png);
+			}
+
+			.expand {
+				width: 100%;
+				height: 100%;
+				background-image: url(expand.png);
+			}
+		}
   .left_box {
     width: 480px;
     height: 359px;

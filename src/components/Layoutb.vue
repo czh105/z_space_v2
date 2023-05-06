@@ -109,6 +109,9 @@ export default defineComponent({
     duogongyi.visible = false;
     let shijue: any = player.scene.getObjectByName("视觉单元");
     shijue.visible = false;
+	// todo:控制当前的操作是否完成
+	let optionsControl: string[] = [];
+	let optionComplete = ref(false)
     onMounted(() => {
       // debugger
       startFree(
@@ -193,6 +196,14 @@ export default defineComponent({
         if (score === 10) {
           ElMessage.success('工作站布局安装点完成!')
         }
+		// todo: 添加操作的标签
+		if (nowChose !== null) {
+			console.log("添加")
+			optionsControl.push(nowChose);
+			if (optionsControl.length == 10) {
+				optionComplete.value = true;
+			}
+		}
         return;
         // nowChoseLabel!.style.display = "none"
         // nowChoseLabel = null
@@ -237,6 +248,14 @@ export default defineComponent({
           player.scene.getObjectByName("m" + nowChose).visible = false;
           if (score === 10) {
           ElMessage.success('工作站布局安装点完成!')
+		  // todo: 添加操作的标签
+		  if (nowChose !== null) {
+		  	console.log("添加")
+		  	optionsControl.push(nowChose);
+		  	if (optionsControl.length == 10) {
+		  		optionComplete.value = true;
+		  	}
+		  }
         }
         }
       }
@@ -267,7 +286,38 @@ export default defineComponent({
       }
       emit("back", p);
     }
-
+	//todo: 重置布局
+	function resetScene() {
+		robot.visible = false;
+		gongju.visible = false;
+		tujiao.visible = false;
+		maduo.visible = false;
+		duogongyi.visible = false;
+		zhuangpei.visible = false;
+		cangchu.visible = false;
+		shijue.visible = false;
+		guangzha.visible = false;
+		jiankong.visible = false;
+		if (nowChoseLabel) {
+			nowChoseLabel.style.color = "#fb9b09";
+			nowChoseLabel.style.backgroundColor = "#fff";
+			nowChoseLabel = null;
+		}
+		if (nowChose) {
+			player.scene.getObjectByName("m" + nowChose).visible = false;
+			nowChose = null;
+		}
+		// todo: 所有的标签全部显示一遍
+		for (let i = 1; i <= 10; i++) {
+			var label: any = player.scene.getObjectByName("m" + i);
+			if (label) {
+				label.visible = true;
+			}
+		}
+		// 清空操作
+		optionsControl = [];
+		optionComplete.value = false;
+	}
    watch(topicNum, () => {
       emit("changeTopicNum", topicNum.value);
       console.log(topicNum.value)
@@ -286,11 +336,13 @@ export default defineComponent({
 
     return {
       obj,
+	  optionComplete,
       searchItem,
       showtips,
       bigType,
       goBack,
-      changeNum
+      changeNum,
+	  resetScene
     };
   },
 });
@@ -315,6 +367,11 @@ export default defineComponent({
       <p>未能选择正确的单元进行布置安装！</p>
       <div class="btn" @click="showtips = false">继续考核</div>
     </div>
+	<div class="tip_box" v-if="optionComplete">
+		<p>当前布局部署完成！</p>
+		<div class="btn" @click="optionComplete = false" style="left: 70px;">确认</div>
+		<div class="btn" @click="resetScene" style="left: 210px;">重置</div>
+	</div>
   </div>
 </template>
 

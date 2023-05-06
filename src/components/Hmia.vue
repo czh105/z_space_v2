@@ -37,6 +37,8 @@ export default defineComponent({
             console.log("goBack");
             emit("back");
         }
+		//todo: 增加示教器面板折叠功能
+		let isFold = ref(false);
         const changeNum = (num: number): void => {
             topicNum.value = num
         }
@@ -945,6 +947,7 @@ export default defineComponent({
         return {
             topic,
             // goTest,
+			isFold,
             goBack,
             topicOneImg,
             topicNum,
@@ -975,7 +978,10 @@ export default defineComponent({
 
 <template>
     <div class="controls_box">
-        <div class="left_box" v-if="topicNum < 10">
+        <div class="left_control" v-if="topicNum < 10" @click="isFold = !isFold" :style="{ left: isFold ? '105px' : '-15px'}">
+        	<div :class="!isFold ? 'fold': 'expand'"></div>
+        </div>
+        <div class="left_box" v-if="topicNum < 10" :style="{transform: !isFold ? 'scale(1.0, 1.0)' : 'scale(0.5, 1)', 'pointer-events': !isFold ? 'auto' : 'none'}">
             <!-- scara机器人调试实训任务 -->
             <div class="robot_opt" :style="topicOneImg">
                 <!-- <div class="otherpage" v-if="topicNum === 1">
@@ -1151,7 +1157,24 @@ export default defineComponent({
         cursor: pointer;
         background-color: #ffaf4c;
     }
-
+	.left_control{
+		position: relative;
+		width: 30px;
+		height: 30px;
+		top: -135px;
+		left: -15px;
+		cursor: pointer;
+		.fold{
+			width: 100%;
+			height: 100%;
+			background-image: url(fold.png);
+		}
+		.expand{
+			width: 100%;
+			height: 100%;
+			background-image: url(expand.png);
+		}
+	}
     .left_box {
         width: 440px;
         height: 320px;
