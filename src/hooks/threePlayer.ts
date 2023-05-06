@@ -21,6 +21,7 @@ export default class ThreePlayer {
   // light4: THREE.DirectionalLight;
   controls: OrbitControls;
   labelRenderer:CSS2DRenderer;
+  animateObj: any;
   constructor(dom: HTMLElement) {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
@@ -46,6 +47,7 @@ export default class ThreePlayer {
     // this.light4 = new THREE.DirectionalLight(0x777777, 0.4);
     // this.light4.position.set(5, 26, -46);
     this.init(dom);
+	this.animateObj = null;
     window.addEventListener("resize", this.onWindowResize, false);
   }
 
@@ -106,6 +108,26 @@ export default class ThreePlayer {
     requestAnimationFrame(this.animate);
     this.render();
   };
+  public  destroy() {
+  	// 销毁
+  	try {
+  		// gpu内存释放
+  		// this.removeModel(null, this.scene);
+  		// 内存释放
+  		this.scene.clear();
+  		this.renderer.dispose();
+  		this.renderer.forceContextLoss();
+  		THREE.Cache.clear();
+  
+  		cancelAnimationFrame(this.animateObj);
+  		let gl: any = this.renderer.domElement.getContext('webgl')
+  		gl && gl.getExtension("WEBGL_lose_context").loseContext();
+  		console.log("内存释放")
+  		
+  	} catch (e) {
+  		console.log(e);
+  	}
+  }
   public rotateAroundWorldAxis(object: any, axis: any, radians: any) {
     let rotWorldMatrix = new THREE.Matrix4();
     rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
