@@ -67,6 +67,12 @@
 			let animateSwitch = ref(false);
 			//todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode:any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			const changeNum = (num: number): void => {
 				topicNum.value = num;
 			};
@@ -260,49 +266,17 @@
 					})
 					.start();
 			}
-
-			// 初始化位置视角
-			function startFree(posObj: Object, conObj: Object): void {
-				if (posObj) {
-					new TWEEN.Tween(player.camera.position)
-						.to(posObj, 2000)
-						.easing(TWEEN.Easing.Linear.None)
-						.start();
-				}
-				if (conObj) {
-					new TWEEN.Tween(player.controls.target)
-						.to(conObj, 2000)
-						.easing(TWEEN.Easing.Linear.None)
-						.start();
-				}
-			}
-			watch(topicNum, () => {
-				emit("changeTopicNum", topicNum.value);
-				// tuoitem.visible = false
-				//   scaratou.visible = false
-				//   yadetou.visible = false
-				//   scaralun.visible = false;
-				TWEEN.removeAll();
-				if ([1, 6, 11, 16, 21].includes(topicNum.value)) {
-					showHelp.value = true;
-					showlr.value = false;
-				}
-				if (topicNum.value === 1) {
-					tuoitem.visible = false;
-					scaratou.visible = false;
-					yadetou.visible = false;
-					scaralun.visible = true;
-					startFree({
-						x: 2.25,
-						y: 20.62,
-						z: -11.23
-					}, {
-						x: 0.17,
-						y: 6.63,
-						z: 4.12
-					});
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate() {
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([scara1, scara2, scara4], actionEnum.ROTATION);
+					actionHistory.pushModelsActionHistory([scara3], actionEnum.POSITION);
 				}
 				if (topicNum.value === 6) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([tuoitem, scaralun, scaratou], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
 					showlr.value = false;
 					tuoitem.visible = false;
 					scaralun.visible = true;
@@ -330,8 +304,14 @@
 							});
 						});
 					});
-				}
-				if (topicNum.value === 11) {
+				} else if (topicNum.value === 11) {
+					if(!isDebugger.value){
+						// actionHistory.pushModelsActionHistory([scaralun], actionEnum.POSITION);
+						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou], actionEnum.VISIBLE);
+						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
+						actionHistory.pushModelActionHistory(player.controls, actionEnum.LOOKAT);
+					}
+					isDebugger.value = true;
 					showlr.value = false;
 					scaralun.visible = false;
 					scaratou.visible = true;
@@ -369,8 +349,11 @@
 							});
 						});
 					});
-				}
-				if (topicNum.value === 16) {
+				} else if (topicNum.value === 16) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou, yade], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
 					yadetou.visible = true;
 					scaralun.visible = true;
 					scaratou.visible = false
@@ -389,8 +372,13 @@
 							});
 						});
 					});
-				}
-				if (topicNum.value === 21) {
+				} else if (topicNum.value === 21) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou, yade], actionEnum.VISIBLE);
+						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
+						actionHistory.pushModelActionHistory(player.controls, actionEnum.LOOKAT);
+					}
+					isDebugger.value = true;
 					yadetou.visible = false;
 					yade.visible = true;
 					showlr.value = false;
@@ -420,8 +408,13 @@
 							});
 						});
 					});
-				}
-				if (topicNum.value === 26) {
+				} else if (topicNum.value === 26) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([scaratou, yadetou], actionEnum.VISIBLE);
+						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
+						actionHistory.pushModelActionHistory(player.controls, actionEnum.LOOKAT);
+					}
+					isDebugger.value = true;
 					yadetou.visible = false;
 					scaratou.visible = true;
 					showlr.value = false;
@@ -440,21 +433,18 @@
 									animateState(arr[2], 1000, () => {
 										animateState(arr[1], 1000,
 											() => {
-												animateState(
-													arr[0],
-													1000,
-													() => {
-														startFree
-															({
-																x: 6.55,
-																y: 17.01,
-																z: -13.36
-															}, {
-																x: 10.4,
-																y: 6.36,
-																z: -4.18
-															});
-														// showlr.value = true
+												animateState(arr[0],
+													1000, () => {
+														startFree({
+															x: 6.55,
+															y: 17.01,
+															z: -13.36
+														}, {
+															x: 10.4,
+															y: 6.36,
+															z: -4.18
+														});
+
 													});
 											});
 									});
@@ -464,9 +454,58 @@
 					});
 				}
 
+			}
+
+
+			// 初始化位置视角
+			function startFree(posObj: Object, conObj: Object): void {
+				if (posObj) {
+					new TWEEN.Tween(player.camera.position)
+						.to(posObj, 2000)
+						.easing(TWEEN.Easing.Linear.None)
+						.start();
+				}
+				if (conObj) {
+					new TWEEN.Tween(player.controls.target)
+						.to(conObj, 2000)
+						.easing(TWEEN.Easing.Linear.None)
+						.start();
+				}
+			}
+			watch(topicNum, () => {
+				emit("changeTopicNum", topicNum.value);
+				// tuoitem.visible = false
+				//   scaratou.visible = false
+				//   yadetou.visible = false
+				//   scaralun.visible = false;
+				TWEEN.removeAll();
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
+				if ([1, 6, 11, 16, 21].includes(topicNum.value)) {
+					showHelp.value = true;
+					showlr.value = false;
+				}
+				if (topicNum.value === 1) {
+					tuoitem.visible = false;
+					scaratou.visible = false;
+					yadetou.visible = false;
+					scaralun.visible = true;
+					startFree({
+						x: 2.25,
+						y: 20.62,
+						z: -11.23
+					}, {
+						x: 0.17,
+						y: 6.63,
+						z: 4.12
+					});
+				}
+
 				if (topicNum.value === 26) {
 					showHelp.value = false;
 				}
+				allDebuggerAnimate();
 				// if (topicNum.value === 21) {
 				//     scaratou.position.z = -196
 				//     scaratou.traverse((m: any) => {
@@ -698,8 +737,9 @@
 				下一步
 			</div>
 		</div>
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr">
+			<div :class="!isFold ? 'fold': 'expand'"  @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- scara机器人调试实训任务 -->
@@ -1130,24 +1170,34 @@
 				background-color: #ffaf4c;
 			}
 		}
-		.left_control{
+
+		.left_control {
 			position: relative;
 			width: 30px;
 			height: 30px;
 			top: -135px;
 			left: -15px;
 			cursor: pointer;
-			.fold{
+
+			.fold {
 				width: 100%;
 				height: 100%;
 				background-image: url(fold.png);
 			}
-			.expand{
+
+			.expand {
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
 			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
+			}
 		}
+
 		.left_box {
 			width: 480px;
 			height: 320px;

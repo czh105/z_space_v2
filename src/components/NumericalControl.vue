@@ -82,6 +82,12 @@
 			let gongzhuangqh: any = player.scene.getObjectByName("gongzhuangqh");
 			//todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode:any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			const changeNum = (num: number): void => {
 				topicNum.value = num;
 			};
@@ -748,7 +754,68 @@
 			function choseAnswer(type: string) {
 				questionPageShow.value = false;
 			}
-
+			// todo:0508防抖函数
+			let antiShakeTimer: any = null;
+			function resetDubuggerAnimate(){
+				if(antiShakeTimer) return;
+				antiShakeTimer = setTimeout(() => {
+					// 重置状态
+					actionHistory.resetModelAction();
+					allDebuggerAnimate();
+					antiShakeTimer = null;
+				}, 500)
+			}
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate() {
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
+				}
+				if (topicNum.value === 11.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
+						actionHistory.pushModelsActionHistory([jiazi, Group140], actionEnum.POSITION)
+					}
+					isDebugger.value = true;
+					animateState(arr1[0], 1500, () => {
+						animateState(arr1[1], 1500, () => {
+							animateState(arr1[2], 1500, () => {
+								// j62.visible = false
+								cangitemtou.visible = false;
+								gongzhuanglungu.visible = true;
+								new TWEEN.Tween(jiazi.position)
+									.to({
+										y: -17
+									}, 1000)
+									.easing(TWEEN.Easing.Linear.None)
+									.start();
+								new TWEEN.Tween(Group140.position)
+									.to({
+										y: 68
+									}, 1000)
+									.easing(TWEEN.Easing.Linear.None)
+									.start();
+								animateState(arr1[1], 1500, () => {});
+							});
+						});
+					});
+				}
+				else if (topicNum.value === 13.5) {
+					if(!isDebugger.value){
+						
+						actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr1[2], 1500, () => {
+						//   j62.visible = true
+						cangitemtou.visible = true;
+						gongzhuanglungu.visible = false;
+						animateState(arr1[1], 1500, () => {
+							animateState(arr1[0], 1500, () => {});
+						});
+					});
+				}
+			}
+			
 			// 初始化位置视角
 			function startFree(
 				arr ? : Array < number > ,
@@ -781,6 +848,9 @@
 				emit("changeTopicNum", topicNum.value);
 				console.log(topicNum.value);
 				home.visible = false;
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				// if (topicNum.value === 23) {
 				// if (topicNum.value === 38) {
 				//     startFree(getRobotPosition(), { x: -26.32, y: 28.22, z: -18.77 }, { x: -32.24, y: 19.28, z: 3.09 })
@@ -864,40 +934,7 @@
 					}
 				}
 
-				if (topicNum.value === 11.5) {
-					animateState(arr1[0], 1500, () => {
-						animateState(arr1[1], 1500, () => {
-							animateState(arr1[2], 1500, () => {
-								// j62.visible = false
-								cangitemtou.visible = false;
-								gongzhuanglungu.visible = true;
-								new TWEEN.Tween(jiazi.position)
-									.to({
-										y: -17
-									}, 1000)
-									.easing(TWEEN.Easing.Linear.None)
-									.start();
-								new TWEEN.Tween(Group140.position)
-									.to({
-										y: 68
-									}, 1000)
-									.easing(TWEEN.Easing.Linear.None)
-									.start();
-								animateState(arr1[1], 1500, () => {});
-							});
-						});
-					});
-				}
-				if (topicNum.value === 13.5) {
-					animateState(arr1[2], 1500, () => {
-						//   j62.visible = true
-						cangitemtou.visible = true;
-						gongzhuanglungu.visible = false;
-						animateState(arr1[1], 1500, () => {
-							animateState(arr1[0], 1500, () => {});
-						});
-					});
-				}
+				
 				if (topicNum.value === 14) {
 					showHelp.value = false;
 					gongzhuanglungu.visible = true;
@@ -921,8 +958,8 @@
 						})
 						.start();
 				}
+				allDebuggerAnimate();
 			});
-
 			function switchAll(type: string) {
 				if (type === "左开") {
 					new TWEEN.Tween(men1.position)
@@ -1090,6 +1127,9 @@
 				topic,
 				// goTest,
 				isFold,
+				mode,
+				isDebugger,
+				resetDubuggerAnimate,
 				goBack,
 				switchAction,
 				switchZhou,
@@ -1207,8 +1247,9 @@
 
 			<div class="pBtn" @click="topicNum++">下一步</div>
 		</div>
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr" >
+			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 操作机器人 -->
@@ -1834,6 +1875,12 @@
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
+			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
 			}
 		}
 		.left_box {

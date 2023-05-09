@@ -37,6 +37,8 @@
 
 	import Tips from "../hooks/tips";
 	import Bridge from "../hooks/bridge";
+	// todo: czh 实现调试程序重置播放
+	import { History, modelActionEnum } from '../assets/history';
 	// todo: 新增 跳转对应值
 	const enumList = {
 		mode: ["教学演示", "实训练习", "在线考核"],
@@ -205,6 +207,11 @@
 			let showControls = ref(false);
 
 			let player: any = null;
+			//todo: 实现调试程序重置功能
+			let actionHistory: any = new History();
+			(window as any).actionHistory = actionHistory;
+			(window as any).actionEnum = modelActionEnum;
+			
 			let hour: any = ref(0);
 			let min: any = ref(0);
 			let sec: any = ref(0);
@@ -888,12 +895,18 @@
 			onBeforeUnmount(async () => {
 				// 停止
 				let _player: any = (window as any).player;
+				// 清除调试程序的动画记录
+				if(actionHistory){
+					actionHistory.clearModelActionHistory();
+					(window as any).actionHistory = null;
+				}
 				if (_player) {
 					// 释放gpu、cpu内存
 					await _player.destroy()
 				}
 				// todo: 备注当前的不会释放内存 -> 会越来越卡、webglcontext崩溃
 				(window as any).player = null;
+				
 				await $store.dispatch("setshixun", false);
 				await $store.dispatch("setkaohe", false);
 			});

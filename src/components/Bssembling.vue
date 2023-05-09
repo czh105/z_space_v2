@@ -54,8 +54,14 @@
 				}
 				emit("back", p);
 			}
-			// todo: 折叠面板
+			// todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode: any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			const changeNum = (num: number): void => {
 				topicNum.value = num;
 			};
@@ -74,7 +80,7 @@
 
 			let j63: any = player.scene.getObjectByName("j6-3");
 			let xp: any = player.scene.getObjectByName("xp");
-
+			console.log(j63)
 			// let j63: any = player.scene.getObjectByName("j6-3");
 			let cpugaizitou: any = player.scene.getObjectByName("cpugaizitou");
 			cpugaizitou.visible = false;
@@ -91,8 +97,10 @@
 			let cpu3: any = player.scene.getObjectByName("cpu3");
 			cpu3.visible = false;
 			let chengpintou: any = player.scene.getObjectByName("chengpintou");
+			console.log(chengpintou)
 			chengpintou.visible = false
 			let chengpin: any = player.scene.getObjectByName("chengpin");
+			console.log(chengpin)
 			chengpin.visible = true
 			let chengpin2: any = player.scene.getObjectByName("chengpin2");
 			chengpin2.visible = false
@@ -998,7 +1006,131 @@
 			function choseAnswer(type: string) {
 				questionPageShow.value = false;
 			}
+			// todo:0508防抖函数
+			let antiShakeTimer: any = null;
+			function resetDubuggerAnimate(){
+				if(antiShakeTimer) return;
+				antiShakeTimer = setTimeout(() => {
+					// 重置状态
+					actionHistory.resetModelAction();
+					allDebuggerAnimate();
+					antiShakeTimer = null;
+				}, 500)
+			}
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate() {
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
+				}
+				// todo:
+				if (topicNum.value === 8) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j63, xp], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr1[0], 1000, () => {
+						animateState(arr1[1], 1000, () => {
+							animateState(arr1[2], 1000, () => {
+								j63.visible = true;
+								xp.visible = false;
+								animateState(arr1[3], 1000, () => {
+									animateState(arr1[4], 1000, () => {
 
+									});
+								});
+							});
+						});
+					});
+				} else if (topicNum.value === 10) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j63, xp], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr1[3], 1000, () => {
+						animateState(arr1[2], 1000, () => {
+							j63.visible = false;
+							xp.visible = true;
+							animateState(arr1[1], 1000, () => {});
+						});
+					});
+				} else if (topicNum.value === 21) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j63, cpugaizitou, cpugaizikong], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr2[0], 1000, () => {
+						animateState(arr2[1], 1000, () => {
+							j63.visible = true;
+							cpugaizitou.visible = true
+							cpugaizikong.visible = false
+							animateState(arr2[0], 1000, () => {});
+						});
+					});
+				} else if (topicNum.value === 23) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j63, cpugaizitou, cpugaizi], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr2[0], 1000, () => {
+						animateState(arr2[2], 1000, () => {
+							j63.visible = true;
+							cpugaizitou.visible = false
+							cpugaizi.visible = true
+							animateState(arr2[0], 1000, () => {});
+						});
+					});
+				} else if (topicNum.value === 37) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j63, cputou, cpu2, cpu3], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr3[0], 1000, () => {
+						animateState(arr3[1], 1500, () => {
+							j63.visible = true;
+							cputou.visible = true
+							cpu2.visible = false
+							animateState(arr3[2], 1000, () => {
+								animateState(arr3[3], 1000, () => {
+									animateState(arr3[3], 1000, () => {
+										animateState(arr3[2], 1000, () => {
+												animateState(
+													arr3[4], 1500, () => {
+														cputou.visible = false
+														cpu3.visible = true
+														animateState(arr3[0], 1000, () => {});
+													});
+											});
+									});
+								});
+							});
+						});
+					});
+				} else if (topicNum.value === 49) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([chengpintou, chengpin], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr4[0], 1000, () => {
+						animateState(arr4[1], 1000, () => {
+							chengpintou.visible = true
+							chengpin.visible = false
+							animateState(arr4[2], 1000, () => {});
+						});
+					});
+				} else if (topicNum.value === 51) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([chengpintou, chengpin2], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr4[2], 1000, () => {
+						animateState(arr4[3], 1000, () => {
+							chengpintou.visible = false
+							chengpin2.visible = true
+							animateState(arr4[0], 1000, () => {});
+						});
+					});
+				}
+			}
 			// 初始化位置视角
 			function startFree(
 				arr ? : Array < number > ,
@@ -1052,6 +1184,9 @@
 				emit("changeTopicNum", topicNum.value);
 				console.log(topicNum.value)
 				home.visible = false;
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				//吸盘工具
 				if (topicNum.value === 0) {
 					showHelp.value = true;
@@ -1090,32 +1225,8 @@
 					home.position.set(-2350, 2350, 1200);
 
 				}
-				if (topicNum.value === 8) {
-					// player.controls.enabled = false;
-					animateState(arr1[0], 1000, () => {
-						animateState(arr1[1], 1000, () => {
-							animateState(arr1[2], 1000, () => {
-								j63.visible = true;
-								xp.visible = false;
-								animateState(arr1[3], 1000, () => {
-									animateState(arr1[4], 1000, () => {
 
-									});
-								});
-							});
-						});
-					});
-				}
-				if (topicNum.value === 10) {
-					// player.controls.enabled = false;
-					animateState(arr1[3], 1000, () => {
-						animateState(arr1[2], 1000, () => {
-							j63.visible = false;
-							xp.visible = true;
-							animateState(arr1[1], 1000, () => {});
-						});
-					});
-				}
+
 				// pcb盖板
 				if (topicNum.value === 11) {
 					showHelp.value = true;
@@ -1159,26 +1270,7 @@
 					home.position.set(-2500, 2600, -550);
 
 				}
-				if (topicNum.value === 21) {
-					animateState(arr2[0], 1000, () => {
-						animateState(arr2[1], 1000, () => {
-							j63.visible = true;
-							cpugaizitou.visible = true
-							cpugaizikong.visible = false
-							animateState(arr2[0], 1000, () => {});
-						});
-					});
-				}
-				if (topicNum.value === 23) {
-					animateState(arr2[0], 1000, () => {
-						animateState(arr2[2], 1000, () => {
-							j63.visible = true;
-							cpugaizitou.visible = false
-							cpugaizi.visible = true
-							animateState(arr2[0], 1000, () => {});
-						});
-					});
-				}
+
 				// pcb芯片
 				if (topicNum.value === 24) {
 					showHelp.value = true;
@@ -1217,43 +1309,6 @@
 					home.visible = true;
 					home.position.set(-2500, 2600, -650);
 
-				}
-				if (topicNum.value === 37) {
-					animateState(arr3[0], 1000, () => {
-						animateState(arr3[1], 1500, () => {
-							j63.visible = true;
-							cputou.visible = true
-							cpu2.visible = false
-							animateState(arr3[2], 1000, () => {
-								animateState(arr3[3], 1000, () => {
-									animateState(arr3[3], 1000, () => {
-										animateState(arr3[2], 1000,
-											() => {
-												animateState(
-													arr3[
-													4],
-													1500,
-													() => {
-														cputou
-															.visible =
-															false
-														cpu3.visible =
-															true
-														animateState
-															(arr3[
-																	0],
-																1000,
-																() => {
-
-																}
-																);
-													});
-											});
-									});
-								});
-							});
-						});
-					});
 				}
 				// 检测
 				if (topicNum.value === 38) {
@@ -1318,29 +1373,7 @@
 					home.visible = true;
 					home.position.set(-3000, 2900, -600);
 				}
-
-				if (topicNum.value === 49) {
-					animateState(arr4[0], 1000, () => {
-						animateState(arr4[1], 1000, () => {
-							chengpintou.visible = true
-							chengpin.visible = false
-							animateState(arr4[2], 1000, () => {});
-						});
-					});
-				}
-				if (topicNum.value === 51) {
-					animateState(arr4[2], 1000, () => {
-						animateState(arr4[3], 1000, () => {
-							chengpintou.visible = false
-							chengpin2.visible = true
-							animateState(arr4[0], 1000, () => {});
-						});
-					});
-				}
-
-
-
-
+				allDebuggerAnimate();
 				// if (topicNum.value === 23) {
 				// if (topicNum.value === 38) {
 				//     startFree(getRobotPosition(), { x: -26.32, y: 28.22, z: -18.77 }, { x: -32.24, y: 19.28, z: 3.09 })
@@ -1447,6 +1480,9 @@
 				topic,
 				// goTest,
 				isFold,
+				mode,
+				isDebugger,
+				resetDubuggerAnimate,
 				goBack,
 				switchAction,
 				switchZhou,
@@ -1515,8 +1551,9 @@
 				下一步
 			</div>
 		</div>
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr" >
+			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 操作机器人 -->
@@ -2225,6 +2262,12 @@
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
+			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
 			}
 		}
 

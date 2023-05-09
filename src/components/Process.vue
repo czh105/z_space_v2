@@ -79,15 +79,20 @@
 			// let hjjt: any = bwj2.getObjectByName("hanjiejian");
 
 			let home: any = player.scene.getObjectByName("home");
-
+			// 实现变位机夹紧和松开动画(切换模型)
 			function switchbwj(bool: boolean) {
 				bwj1.visible = bool;
 				bwj2.visible = !bool;
 				hjjs.visible = !bool
 			}
-			//todo: 增加示教器面板折叠功能
+			// todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
-
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode:any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			// debugger
 			const changeNum = (num: number): void => {
 				if ([11, 22, 31, 37].includes(num)) {
@@ -735,7 +740,7 @@
 				j6.rotation.y = arr[5];
 				player.renderer.render(player.scene, player.camera);
 			}
-
+			
 			function animateState(
 				arr: Array < number > ,
 				during: number,
@@ -964,6 +969,163 @@
 					listPosition.push(getRobotPosition());
 				}
 			}
+			// todo:0508防抖函数
+			let antiShakeTimer: any = null;
+			function resetDubuggerAnimate(){
+				if(antiShakeTimer) return;
+				antiShakeTimer = setTimeout(() => {
+					// 重置状态
+					actionHistory.resetModelAction();
+					allDebuggerAnimate();
+					antiShakeTimer = null;
+				}, 500)
+			}
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate(){
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
+				}
+				// todo: 取焊枪工具的调试运行
+				if (topicNum.value === 8) {
+					// player.controls.enabled = false;
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j65, hj], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr1[0], 1000, () => {
+						animateState(arr1[1], 1000, () => {
+							animateState(arr1[2], 1000, () => {
+								j65.visible = true;
+								hj.visible = false;
+								animateState(arr1[1], 1000, () => {});
+							});
+						});
+					});
+				}
+				// todo: 放焊枪工具的调试运行
+				else if (topicNum.value === 10) {
+					// player.controls.enabled = false;
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j65, hj], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr1[1], 1000, () => {
+						animateState(arr1[2], 1000, () => {
+							j65.visible = false;
+							hj.visible = true;
+							animateState(arr1[1], 1000, () => {});
+						});
+					});
+				}
+				// todo: 取打磨抛光工具的调试运行
+				else if (topicNum.value === 19) {
+					// player.controls.enabled = false;
+					if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j64, dm], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr2[0], 1000, () => {
+						animateState(arr2[1], 1000, () => {
+							animateState(arr2[2], 1000, () => {
+								j64.visible = true;
+								dm.visible = false;
+								animateState(arr2[1], 1000, () => {});
+							});
+						});
+					});
+				}
+				// todo: 放打磨抛光工具的调试运行
+				else if (topicNum.value === 21) {
+					// player.controls.enabled = false;
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j64, dm], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr2[1], 1000, () => {
+						animateState(arr2[2], 1000, () => {
+							j64.visible = false;
+							dm.visible = true;
+							animateState(arr2[1], 1000, () => {});
+						});
+					});
+				}// todo:变位机夹紧和释放的调试运行
+				else if (topicNum.value === 30) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([hjj, hjjs], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr3[0], 1000, () => {
+						animateState(arr3[1], 2000, () => {
+							hjj.visible = false
+							hjjs.visible = true
+							animateState(arr3[0], 1000, () => {});
+						});
+					});
+				}// todo:变位机控制弧焊程序调试运行
+				else if (topicNum.value === 36) {
+					if(!isDebugger.value){
+						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
+						actionHistory.pushModelActionHistory(player.controls, actionEnum.LOOKAT);
+					}
+					isDebugger.value = true;
+					startFree(
+						[0, 0, 0, 0, 0, 0], {
+							x: -8.78,
+							y: 64.81,
+							z: 60.13
+						}, {
+							x: 23.93,
+							y: 25.04,
+							z: 5.20
+						}
+					);
+					animateState(arr4[0], 1000, () => {
+						animateState(arr4[1], 1000, () => {
+							animateState(arr4[2], 2000, () => {
+								animateState(arr4[3], 2000, () => {
+									animateState(arr4[4], 2000, () => {
+										animateState(arr4[5], 2000,
+											() => {
+												animateState(
+													arr4[
+													6],
+													2000,
+													() => {
+
+													});
+											});
+									});
+								});
+							});
+						});
+					});
+				}
+				// todo:打磨抛光轨迹的调试运行
+				else if (topicNum.value === 42) {
+					isDebugger.value = true;
+					animateState(arr5[0], 1000, () => {
+						animateState(arr5[1], 1000, () => {
+							animateState(arr5[2], 2000, () => {
+								animateState(arr5[3], 1000, () => {
+									animateState(arr5[1], 2000, () => {
+										animateState(arr5[2], 1000,
+											() => {
+												animateState(
+													arr5[
+													3],
+													2000,
+													() => {
+				
+													})
+											})
+									})
+								})
+							})
+						})
+					})
+				}
+				
+			}
 			// 初始化位置视角
 			function startFree(
 				arr: Array < number > ,
@@ -1016,8 +1178,13 @@
 				emit("changeTopicNum", topicNum.value);
 				console.log(topicNum.value)
 				home.visible = false;
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				// j62.visible = false
-
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				if (topicNum.value === 0) {
 					showHelp.value = true;
 					showlr.value = false;
@@ -1050,28 +1217,7 @@
 					home.position.set(-2300, 2400, 650);
 
 				}
-				if (topicNum.value === 8) {
-					// player.controls.enabled = false;
-					animateState(arr1[0], 1000, () => {
-						animateState(arr1[1], 1000, () => {
-							animateState(arr1[2], 1000, () => {
-								j65.visible = true;
-								hj.visible = false;
-								animateState(arr1[1], 1000, () => {});
-							});
-						});
-					});
-				}
-				if (topicNum.value === 10) {
-					// player.controls.enabled = false;
-					animateState(arr1[1], 1000, () => {
-						animateState(arr1[2], 1000, () => {
-							j65.visible = false;
-							hj.visible = true;
-							animateState(arr1[1], 1000, () => {});
-						});
-					});
-				}
+				
 				// 打磨
 
 				if (topicNum.value === 11) {
@@ -1094,28 +1240,7 @@
 					home.position.set(-2338, 2351, 925);
 
 				}
-				if (topicNum.value === 19) {
-					// player.controls.enabled = false;
-					animateState(arr2[0], 1000, () => {
-						animateState(arr2[1], 1000, () => {
-							animateState(arr2[2], 1000, () => {
-								j64.visible = true;
-								dm.visible = false;
-								animateState(arr2[1], 1000, () => {});
-							});
-						});
-					});
-				}
-				if (topicNum.value === 21) {
-					// player.controls.enabled = false;
-					animateState(arr2[1], 1000, () => {
-						animateState(arr2[2], 1000, () => {
-							j64.visible = false;
-							dm.visible = true;
-							animateState(arr2[1], 1000, () => {});
-						});
-					});
-				}
+				
 				// 变位机
 				if (topicNum.value === 22) {
 					showHelp.value = true;
@@ -1156,15 +1281,7 @@
 					home.position.set(1900, 2600, 800);
 
 				}
-				if (topicNum.value === 30) {
-					animateState(arr3[0], 1000, () => {
-						animateState(arr3[1], 2000, () => {
-							hjj.visible = false
-							hjjs.visible = true
-							animateState(arr3[0], 1000, () => {});
-						});
-					});
-				}
+				
 				// 焊接
 
 				if (topicNum.value === 31) {
@@ -1196,39 +1313,6 @@
 					home.position.set(1900, 2600, 800);
 
 				}
-				if (topicNum.value === 36) {
-					startFree(
-						[0, 0, 0, 0, 0, 0], {
-							x: -8.78,
-							y: 64.81,
-							z: 60.13
-						}, {
-							x: 23.93,
-							y: 25.04,
-							z: 5.20
-						}
-					);
-					animateState(arr4[0], 1000, () => {
-						animateState(arr4[1], 1000, () => {
-							animateState(arr4[2], 2000, () => {
-								animateState(arr4[3], 2000, () => {
-									animateState(arr4[4], 2000, () => {
-										animateState(arr4[5], 2000,
-											() => {
-												animateState(
-													arr4[
-													6],
-													2000,
-													() => {
-
-													});
-											});
-									});
-								});
-							});
-						});
-					});
-				}
 				// 抛光
 				if (topicNum.value === 37) {
 					showHelp.value = true;
@@ -1259,41 +1343,8 @@
 					if (bigType !== "教学演示") return;
 					home.visible = true;
 					home.position.set(1950, 3200, 1000);
-
-
 				}
-
-				if (topicNum.value === 42) {
-					animateState(arr5[0], 1000, () => {
-						animateState(arr5[1], 1000, () => {
-							animateState(arr5[2], 2000, () => {
-								animateState(arr5[3], 1000, () => {
-									animateState(arr5[1], 2000, () => {
-										animateState(arr5[2], 1000,
-											() => {
-												animateState(
-													arr5[
-													3],
-													2000,
-													() => {
-
-													})
-											})
-									})
-								})
-							})
-						})
-					})
-				}
-
-
-
-
-
-
-
-
-
+				allDebuggerAnimate();
 
 				// if (topicNum.value === 23) {
 				//   j62.visible = true;
@@ -1345,7 +1396,10 @@
 				topic,
 				// goTest,
 				isFold,
+				mode,
+				isDebugger,
 				goBack,
+				resetDubuggerAnimate,
 				switchAction,
 				switchZhou,
 				switchTypeImg,
@@ -1392,8 +1446,9 @@
 				下一步
 			</div>
 		</div>
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr">
+			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 菜单 -->
@@ -1940,6 +1995,12 @@
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
+			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
 			}
 		}
 

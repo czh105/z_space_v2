@@ -16,9 +16,6 @@
 	} from 'element-plus'
 	import Result from "../hooks/result";
 	import ThinkingSelect from "../components/ThinkingSelect.vue";
-	import {
-		setTimeout
-	} from "timers/promises";
 	import $store from "../store/index";
 	export default defineComponent({
 		name: "Palletizing",
@@ -78,10 +75,17 @@
 			let jz: any = player.scene.getObjectByName("jz");
 
 			let cc: any = player.scene.getObjectByName("cc");
+			console.log(cc)
 			let zl: any = player.scene.getObjectByName("zl");
 			let zlother: any = player.scene.getObjectByName("zlother");
 			//todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode:any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			const changeNum = (num: number): void => {
 				topicNum.value = num;
 			};
@@ -748,7 +752,125 @@
 					}
 				}
 			});
-
+			// todo:0508防抖函数
+			let antiShakeTimer: any = null;
+			function resetDubuggerAnimate(){
+				if(antiShakeTimer) return;
+				antiShakeTimer = setTimeout(() => {
+					// 重置状态
+					actionHistory.resetModelAction();
+					allDebuggerAnimate();
+					antiShakeTimer = null;
+				}, 500)
+			}
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate() {
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
+				}
+				if (topicNum.value === 8.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([player.controls], actionEnum.CONTROL_ENABLED);
+						actionHistory.pushModelsActionHistory([j62, jz, Group031], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					
+					player.controls.enabled = false;
+					animateState(arr1[0], 1000, () => {
+						animateState(arr1[1], 1000, () => {
+							animateState(arr1[2], 1000, () => {
+								j62.visible = true;
+								jz.visible = false;
+								Group031.visible = true;
+								animateState(arr1[1], 1000, () => {});
+							});
+						});
+					});
+				}
+				else if (topicNum.value === 10.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
+						actionHistory.pushModelActionHistory(player.controls, actionEnum.LOOKAT);
+						actionHistory.pushModelsActionHistory([player.controls], actionEnum.CONTROL_ENABLED);
+						actionHistory.pushModelsActionHistory([j62, jz, Group031], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					player.controls.enabled = false;
+					animateState(arr1[1], 1000, () => {
+						animateState(arr1[2], 1000, () => {
+							j62.visible = false;
+							jz.visible = true;
+							Group031.visible = false;
+							animateState(arr1[1], 1000, () => {
+								Group031.visible = true;
+								j62.visible = true;
+								startFree(
+									[-0.28, 0.49, -0.05, 0, 1.07, 0], {
+										x: 3.29,
+										y: 59.4,
+										z: 65.01
+									}, {
+										x: 0.66,
+										y: 9.26,
+										z: 8.98
+									},
+									() => {
+										showtips.value = true;
+									}
+								);
+							});
+						});
+					});
+				}
+				// 仓储
+				else if (topicNum.value === 12.1) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([maduo, cc], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					animateState(arr2[0], 1000, () => {
+						animateState(arr2[2], 1000, () => {
+							maduo.visible = true;
+							cc.visible = false;
+							// setLeftContent("操作机器人");
+							animateState(arr2[0], 1000, () => {
+								animateState(arr2[0], 1000, () => {});
+							});
+						});
+					});
+				}
+				else if (topicNum.value === 14.1) {
+					if(!isDebugger.value){
+						actionHistory.pushModelActionHistory(zlother, actionEnum.POSITION);
+						actionHistory.pushModelsActionHistory([player.controls], actionEnum.CONTROL_ENABLED);
+						actionHistory.pushModelsActionHistory([j62, maduo, zl], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					showlr.value = false;
+					showHelp.value = false;
+					j62.visible = true;
+					player.controls.enabled = false;
+					showtips.value = false;
+					animateState(arr3[0], 1000, () => {
+						animateState(arr3[1], 1000, () => {
+							maduo.visible = true;
+							zl.visible = false;
+							new TWEEN.Tween(zlother.position)
+								.to({
+									x: -148.34,
+									y: -66.29,
+									z: 0
+								}, 500)
+								.easing(TWEEN.Easing.Linear.None)
+								.start();
+							animateState(arr3[0], 1000, () => {
+								animateState(arr3[0], 1000, () => {});
+							});
+						});
+					});
+				}
+			}
+			
 			// 初始化位置视角
 			function startFree(
 				arr: Array < number > ,
@@ -806,6 +928,9 @@
 			watch(topicNum, () => {
 				emit("changeTopicNum", topicNum.value);
 				home.visible = false;
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				player.controls.enabled = true;
 				console.log(topicNum.value);
 				if (topicNum.value === 0) {
@@ -841,19 +966,7 @@
 					j62.visible = false;
 				}
 
-				if (topicNum.value === 8.5) {
-					player.controls.enabled = false;
-					animateState(arr1[0], 1000, () => {
-						animateState(arr1[1], 1000, () => {
-							animateState(arr1[2], 1000, () => {
-								j62.visible = true;
-								jz.visible = false;
-								Group031.visible = true;
-								animateState(arr1[1], 1000, () => {});
-							});
-						});
-					});
-				}
+				
 				if (topicNum.value === 11) {
 					player.controls.enabled = false;
 					// Group031.visible = true;
@@ -878,34 +991,7 @@
 					);
 				}
 
-				if (topicNum.value === 10.5) {
-					player.controls.enabled = false;
-					animateState(arr1[1], 1000, () => {
-						animateState(arr1[2], 1000, () => {
-							j62.visible = false;
-							jz.visible = true;
-							Group031.visible = false;
-							animateState(arr1[1], 1000, () => {
-								Group031.visible = true;
-								j62.visible = true;
-								startFree(
-									[-0.28, 0.49, -0.05, 0, 1.07, 0], {
-										x: 3.29,
-										y: 59.4,
-										z: 65.01
-									}, {
-										x: 0.66,
-										y: 9.26,
-										z: 8.98
-									},
-									() => {
-										showtips.value = true;
-									}
-								);
-							});
-						});
-					});
-				}
+				
 				if (topicNum.value === 12) {
 					// showlr.value = false;
 					// showHelp.value = false;
@@ -916,19 +1002,7 @@
 					cc.visible = true;
 				}
 
-				// 仓储
-				if (topicNum.value === 12.1) {
-					animateState(arr2[0], 1000, () => {
-						animateState(arr2[2], 1000, () => {
-							maduo.visible = true;
-							cc.visible = false;
-							// setLeftContent("操作机器人");
-							animateState(arr2[0], 1000, () => {
-								animateState(arr2[0], 1000, () => {});
-							});
-						});
-					});
-				}
+				
 				if (topicNum.value === 13) {
 					maduo.visible = false;
 					cc.visible = true;
@@ -954,30 +1028,7 @@
 					zlother.position.set(0, 0, 0);
 				}
 
-				if (topicNum.value === 14.1) {
-					showlr.value = false;
-					showHelp.value = false;
-					j62.visible = true;
-					player.controls.enabled = false;
-					showtips.value = false;
-					animateState(arr3[0], 1000, () => {
-						animateState(arr3[1], 1000, () => {
-							maduo.visible = true;
-							zl.visible = false;
-							new TWEEN.Tween(zlother.position)
-								.to({
-									x: -148.34,
-									y: -66.29,
-									z: 0
-								}, 500)
-								.easing(TWEEN.Easing.Linear.None)
-								.start();
-							animateState(arr3[0], 1000, () => {
-								animateState(arr3[0], 1000, () => {});
-							});
-						});
-					});
-				}
+				
 				if (topicNum.value === 15) {
 					maduo.visible = false;
 					// 切换三花视角
@@ -1056,6 +1107,7 @@
 					//   });
 					// });
 				}
+				allDebuggerAnimate();
 			});
 			let score = ref(19);
 
@@ -1197,6 +1249,9 @@
 				topic,
 				// goTest,
 				isFold,
+				mode,
+				isDebugger,
+				resetDubuggerAnimate,
 				goBack,
 				switchAction,
 				switchZhou,
@@ -1295,8 +1350,9 @@
     >
       放置
     </div> -->
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr" >
+			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 菜单 -->
@@ -1675,6 +1731,12 @@
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
+			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
 			}
 		}
 		.left_box {

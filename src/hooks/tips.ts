@@ -352,7 +352,7 @@ export default {
       to: 35,
     },
     {
-      name: "选择工具坐标【tool_grip】判断点",
+      name: "选择工具坐标【tool_grip】",
       type: "b",
       nums: [35, 36],
     },
@@ -367,7 +367,7 @@ export default {
       num: 36,
     },
     {
-      name: "选择工件坐标【wobj6】判断点",
+      name: "选择工件坐标【wobj6】",
       type: "b",
       nums: [37, 38],
     },

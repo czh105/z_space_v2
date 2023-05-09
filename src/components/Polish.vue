@@ -47,6 +47,12 @@
 			let animateSwitch = ref(false);
 			//todo: 增加示教器面板折叠功能
 			let isFold = ref(false);
+			let actionHistory: any = (window as any).actionHistory;
+			let actionEnum: any = (window as any).actionEnum;
+			// 判断是否是教学演示
+			let mode:any = ref((window as any).mode);
+			// todo:判断是否是调试程序
+			var isDebugger = ref(false);
 			const changeNum = (num: number): void => {
 				topicNum.value = num;
 				//   TWEEN.removeAll()
@@ -739,7 +745,77 @@
 			function choseAnswer(type: string) {
 				questionPageShow.value = false;
 			}
-
+			// todo:0508防抖函数
+			let antiShakeTimer: any = null;
+			function resetDubuggerAnimate(){
+				if(antiShakeTimer) return;
+				antiShakeTimer = setTimeout(() => {
+					// 重置状态
+					actionHistory.resetModelAction();
+					allDebuggerAnimate();
+					antiShakeTimer = null;
+				}, 500)
+			}
+			// todo:0508所有的调试程序的动画
+			function allDebuggerAnimate(){
+				if(!isDebugger.value){
+					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
+				}
+				if (topicNum.value === 10.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j62, lun1, cangitemtou], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					j62.visible = true;
+					animateState(arr1[0], 1000, () => {
+						animateState(arr1[1], 1000, () => {
+							animateState(arr1[2], 1000, () => {
+								lun1.visible = true;
+								cangitemtou.visible = false;
+								animateState(arr1[1], 1000, () => {});
+							});
+						});
+					});
+				}
+				else if (topicNum.value === 12.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([zhuanwei], actionEnum.ROTATION);
+						actionHistory.pushModelsActionHistory([lun1, cangitemtou], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					new TWEEN.Tween(zhuanwei.rotation)
+						.to({
+							y: 3.14
+						}, 1000)
+						.easing(TWEEN.Easing.Linear.None)
+						.onComplete(() => {
+							animateState(arr1[3], 1000, () => {
+								animateState(arr1[4], 1000, () => {
+									lun1.visible = false;
+									cangitemtou.visible = true;
+									animateState(arr1[3], 1000, () => {});
+								});
+							});
+						})
+						.start();
+				}else if (topicNum.value === 18.5) {
+					if(!isDebugger.value){
+						actionHistory.pushModelsActionHistory([j62, lun1, cangitemtou], actionEnum.VISIBLE);
+					}
+					isDebugger.value = true;
+					j62.visible = true;
+					lun1.visible = false;
+					cangitemtou.visible = true;
+					animateState(arr2[0], 1000, () => {
+						animateState(arr2[1], 1000, () => {
+							animateState(arr2[2], 3000, () => {
+								animateState(arr2[1], 1000, () => {});
+							});
+						});
+					});
+				}
+			}
+			
 			// 初始化位置视角
 			function startFree(
 				arr ? : Array < number > ,
@@ -780,6 +856,9 @@
 				emit("changeTopicNum", topicNum.value);
 				// if (topicNum.value === 23) {
 				home.visible = false;
+				isDebugger.value = false;
+				// 清空历史记录
+				actionHistory.clearModelActionHistory();
 				if (topicNum.value === 1) {
 					showlr.value = false;
 					showHelp.value = false;
@@ -825,43 +904,10 @@
 				}
 				if (topicNum.value === 5) {
 					j62.visible = true;
-
 					if (bigType === "教学演示") {
 						home.visible = true;
 						home.position.set(1203, 58, -252);
 					}
-
-
-				}
-
-				if (topicNum.value === 10.5) {
-					j62.visible = true;
-					animateState(arr1[0], 1000, () => {
-						animateState(arr1[1], 1000, () => {
-							animateState(arr1[2], 1000, () => {
-								lun1.visible = true;
-								cangitemtou.visible = false;
-								animateState(arr1[1], 1000, () => {});
-							});
-						});
-					});
-				}
-				if (topicNum.value === 12.5) {
-					new TWEEN.Tween(zhuanwei.rotation)
-						.to({
-							y: 3.14
-						}, 1000)
-						.easing(TWEEN.Easing.Linear.None)
-						.onComplete(() => {
-							animateState(arr1[3], 1000, () => {
-								animateState(arr1[4], 1000, () => {
-									lun1.visible = false;
-									cangitemtou.visible = true;
-									animateState(arr1[3], 1000, () => {});
-								});
-							});
-						})
-						.start();
 				}
 				if (topicNum.value === 13) {
 					j62.visible = true;
@@ -876,19 +922,8 @@
 					home.visible = true;
 					home.position.set(1503, 222, -294);
 				}
-
-				if (topicNum.value === 18.5) {
-					j62.visible = true;
-					lun1.visible = false;
-					cangitemtou.visible = true;
-					animateState(arr2[0], 1000, () => {
-						animateState(arr2[1], 1000, () => {
-							animateState(arr2[2], 3000, () => {
-								animateState(arr2[1], 1000, () => {});
-							});
-						});
-					});
-				}
+				allDebuggerAnimate();
+				
 			});
 
 			function switchAll(type: string) {
@@ -1026,6 +1061,9 @@
 				topic,
 				// goTest,
 				isFold,
+				mode,
+				isDebugger,
+				resetDubuggerAnimate,
 				goBack,
 				switchAction,
 				switchZhou,
@@ -1132,8 +1170,9 @@
 
 			<div class="pBtn" @click="topicNum++, (showHelp = true)">下一步</div>
 		</div>
-		<div class="left_control" v-if="showlr" @click="isFold = !isFold">
-			<div :class="!isFold ? 'fold': 'expand'"></div>
+		<div class="left_control" v-if="showlr" >
+			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 操作机器人 -->
@@ -1518,6 +1557,12 @@
 				width: 100%;
 				height: 100%;
 				background-image: url(expand.png);
+			}
+			.rerun{
+				margin-top:20px;
+				width: 100%;
+				height: 100%;
+				background-image: url(rerun.png);
 			}
 		}
 
