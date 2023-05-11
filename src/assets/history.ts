@@ -95,7 +95,6 @@ export class History {
 		}
 		for(let j = 0; j < attachActions.length; j++){
 			const attachAction = attachActions[j];
-			console.log(attachAction);
 			const matrix = attachAction.value.matrix;
 			const parent = attachAction.value.parent;
 			const position = attachAction.value.position;
@@ -106,7 +105,8 @@ export class History {
 			attachAction.obj.scale.copy(scale);
 			parent.updateWorldMatrix(true, false);
 			attachAction.obj.matrix.copy(matrix);
-			attachAction.obj.matrix.decompose(position, quaternion, scale);
+			// todo: 多次点击之后会出错
+			// attachAction.obj.matrix.decompose(position, quaternion, scale);
 			parent.add(attachAction.obj);
 			attachAction.obj.updateWorldMatrix(false, true);
 		}
