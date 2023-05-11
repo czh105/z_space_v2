@@ -272,6 +272,7 @@
 					actionHistory.pushModelsActionHistory([scara1, scara2, scara4], actionEnum.ROTATION);
 					actionHistory.pushModelsActionHistory([scara3], actionEnum.POSITION);
 				}
+				// 机器人轮毂拾取程序调试运行
 				if (topicNum.value === 6) {
 					if(!isDebugger.value){
 						actionHistory.pushModelsActionHistory([tuoitem, scaralun, scaratou], actionEnum.VISIBLE);
@@ -304,7 +305,7 @@
 							});
 						});
 					});
-				} else if (topicNum.value === 11) {
+				} else if (topicNum.value === 11) { // 机器人轮毂放置程序调试运行
 					if(!isDebugger.value){
 						// actionHistory.pushModelsActionHistory([scaralun], actionEnum.POSITION);
 						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou], actionEnum.VISIBLE);
@@ -349,7 +350,7 @@
 							});
 						});
 					});
-				} else if (topicNum.value === 16) {
+				} else if (topicNum.value === 16) { // 机器人压装工位上料程序调试运行
 					if(!isDebugger.value){
 						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou, yade], actionEnum.VISIBLE);
 					}
@@ -372,7 +373,7 @@
 							});
 						});
 					});
-				} else if (topicNum.value === 21) {
+				} else if (topicNum.value === 21) { // 机器人压装工位下料程序调试运行
 					if(!isDebugger.value){
 						actionHistory.pushModelsActionHistory([scaralun, scaratou, yadetou, yade], actionEnum.VISIBLE);
 						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);
@@ -408,7 +409,7 @@
 							});
 						});
 					});
-				} else if (topicNum.value === 26) {
+				} else if (topicNum.value === 26) { // 机器人视觉检测程序调试运行
 					if(!isDebugger.value){
 						actionHistory.pushModelsActionHistory([scaratou, yadetou], actionEnum.VISIBLE);
 						actionHistory.pushModelActionHistory(player.camera, actionEnum.POSITION);

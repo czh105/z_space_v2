@@ -1,11 +1,12 @@
-import { Vector3 } from 'three';
+import { Vector3, Quaternion } from 'three';
 // 模型操作枚举
 export const modelActionEnum: any = {
 	VISIBLE: 0, // 显隐
 	ROTATION: 1, // 旋转
 	POSITION: 2, // 位移
 	LOOKAT: 3, // 控制器的看向的方向
-	CONTROL_ENABLED: 4
+	CONTROL_ENABLED: 4, // 控制器开关
+	ATTACH: 5, // 添加（更新)父类节点
 }
 export class History {
 	modelActionHistory: any[];
@@ -38,6 +39,17 @@ export class History {
 			case modelActionEnum.CONTROL_ENABLED:
 				item.value = object.enabled;
 				break;
+			case modelActionEnum.ATTACH:
+				// 记录位置
+				let _value = {
+					parent: object.parent,
+					matrix: object.matrix,
+					position: new Vector3().copy(object.position),
+					quaternion: new Quaternion().copy(object.quaternion),
+					scale: new Vector3().copy(object.scale)
+				}
+				item.value = _value;
+				break;
 		}
 		this.modelActionHistory.push(item);
 	}
@@ -53,7 +65,8 @@ export class History {
 		this.modelActionHistory = [];
 	}
 	// 重置调试运行之前的状态
-	public resetModelAction() { 		
+	public resetModelAction() {
+		let attachActions: any[] = [];
 		for (let i = 0; i < this.modelActionHistory.length; i++) {
 			const actionObj = this.modelActionHistory[i];
 			if (actionObj.value == null) continue;
@@ -74,7 +87,28 @@ export class History {
 				case modelActionEnum.CONTROL_ENABLED:
 					actionObj.obj.enabled = actionObj.value;
 					break;
+				case modelActionEnum.ATTACH:
+					// actionObj.value.attach(actionObj.obj);
+					attachActions.push(actionObj);
+					break;
 			}
+		}
+		for(let j = 0; j < attachActions.length; j++){
+			const attachAction = attachActions[j];
+			console.log(attachAction);
+			const matrix = attachAction.value.matrix;
+			const parent = attachAction.value.parent;
+			const position = attachAction.value.position;
+			const quaternion = attachAction.value.quaternion;
+			const scale = attachAction.value.scale;
+			attachAction.obj.position.copy(position);
+			attachAction.obj.quaternion.copy(quaternion);
+			attachAction.obj.scale.copy(scale);
+			parent.updateWorldMatrix(true, false);
+			attachAction.obj.matrix.copy(matrix);
+			attachAction.obj.matrix.decompose(position, quaternion, scale);
+			parent.add(attachAction.obj);
+			attachAction.obj.updateWorldMatrix(false, true);
 		}
 	}
 }

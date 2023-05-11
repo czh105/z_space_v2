@@ -80,7 +80,6 @@
 
 			let j63: any = player.scene.getObjectByName("j6-3");
 			let xp: any = player.scene.getObjectByName("xp");
-			console.log(j63)
 			// let j63: any = player.scene.getObjectByName("j6-3");
 			let cpugaizitou: any = player.scene.getObjectByName("cpugaizitou");
 			cpugaizitou.visible = false;
@@ -96,11 +95,9 @@
 			cpu2.visible = true;
 			let cpu3: any = player.scene.getObjectByName("cpu3");
 			cpu3.visible = false;
-			let chengpintou: any = player.scene.getObjectByName("chengpintou");
-			console.log(chengpintou)
+			let chengpintou: any = player.scene.getObjectByName("chengpintou"); // robot.json
 			chengpintou.visible = false
-			let chengpin: any = player.scene.getObjectByName("chengpin");
-			console.log(chengpin)
+			let chengpin: any = player.scene.getObjectByName("chengpin"); // zhoushang.json
 			chengpin.visible = true
 			let chengpin2: any = player.scene.getObjectByName("chengpin2");
 			chengpin2.visible = false
@@ -1002,14 +999,28 @@
 					});
 				}
 			});
+			// todo: 测试修改topicNum、后续删除
+			(window as any).setTopicNum = (num: number) => {
+					topicNum.value = num;
+					console.log("topic")
+					allDebuggerAnimate();
+				}
+				(window as any).getRotation = () => {
+					console.log("j1 rotation:", j1.rotation)
+					console.log("j2 rotation:", j1.rotation)
+					console.log("j3 rotation:", j1.rotation)
+					console.log("j4 rotation:", j1.rotation)
+					console.log("j5 rotation:", j1.rotation)
+				}
 
 			function choseAnswer(type: string) {
 				questionPageShow.value = false;
 			}
 			// todo:0508防抖函数
 			let antiShakeTimer: any = null;
-			function resetDubuggerAnimate(){
-				if(antiShakeTimer) return;
+
+			function resetDubuggerAnimate() {
+				if (antiShakeTimer) return;
 				antiShakeTimer = setTimeout(() => {
 					// 重置状态
 					actionHistory.resetModelAction();
@@ -1019,19 +1030,22 @@
 			}
 			// todo:0508所有的调试程序的动画
 			function allDebuggerAnimate() {
-				if(!isDebugger.value){
+				if (!isDebugger.value) {
 					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
 				}
 				// todo:
 				if (topicNum.value === 8) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([j63, xp], actionEnum.VISIBLE);
+						actionHistory.pushModelsActionHistory([j63], actionEnum.ROTATION);
 					}
 					isDebugger.value = true;
+					//todo: 取吸盘工具的调试运行穿模
 					animateState(arr1[0], 1000, () => {
 						animateState(arr1[1], 1000, () => {
 							animateState(arr1[2], 1000, () => {
 								j63.visible = true;
+								j63.rotation.y += 0.225;
 								xp.visible = false;
 								animateState(arr1[3], 1000, () => {
 									animateState(arr1[4], 1000, () => {
@@ -1042,20 +1056,23 @@
 						});
 					});
 				} else if (topicNum.value === 10) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([j63, xp], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
+					//todo: 放吸盘工具的调试运行穿模、测试
 					animateState(arr1[3], 1000, () => {
 						animateState(arr1[2], 1000, () => {
 							j63.visible = false;
 							xp.visible = true;
-							animateState(arr1[1], 1000, () => {});
+							// todo: czh测试
+							// animateState(arr1[1], 1000, () => {});
 						});
 					});
 				} else if (topicNum.value === 21) {
-					if(!isDebugger.value){
-						actionHistory.pushModelsActionHistory([j63, cpugaizitou, cpugaizikong], actionEnum.VISIBLE);
+					if (!isDebugger.value) {
+						actionHistory.pushModelsActionHistory([j63, cpugaizitou, cpugaizikong], actionEnum
+						.VISIBLE);
 					}
 					isDebugger.value = true;
 					animateState(arr2[0], 1000, () => {
@@ -1067,7 +1084,7 @@
 						});
 					});
 				} else if (topicNum.value === 23) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([j63, cpugaizitou, cpugaizi], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
@@ -1080,7 +1097,7 @@
 						});
 					});
 				} else if (topicNum.value === 37) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([j63, cputou, cpu2, cpu3], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
@@ -1093,20 +1110,29 @@
 								animateState(arr3[3], 1000, () => {
 									animateState(arr3[3], 1000, () => {
 										animateState(arr3[2], 1000, () => {
-												animateState(
-													arr3[4], 1500, () => {
-														cputou.visible = false
-														cpu3.visible = true
-														animateState(arr3[0], 1000, () => {});
-													});
-											});
+											animateState(
+												arr3[4], 1500,
+												() => {
+													cputou
+														.visible =
+														false
+													cpu3.visible =
+														true
+													animateState
+														(arr3[
+																0],
+															1000,
+															() => {}
+															);
+												});
+										});
 									});
 								});
 							});
 						});
 					});
 				} else if (topicNum.value === 49) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([chengpintou, chengpin], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
@@ -1118,7 +1144,7 @@
 						});
 					});
 				} else if (topicNum.value === 51) {
-					if(!isDebugger.value){
+					if (!isDebugger.value) {
 						actionHistory.pushModelsActionHistory([chengpintou, chengpin2], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
@@ -1155,11 +1181,21 @@
 				}
 			}
 
-			let arr1 = [
+			/* let arr1 = [
 				[-1.04, 0.2, -0.17, 0, 1.07, 0],
-				[-1.12, 0.45, -0.14, 0, 1.27, 0],
+				// [-1.12, 0.45, -0.14, 0, 1.27, 0],
+				[-1.12, 0.45, -0.14, 0.02, 1.27, -0],
 				[-1.13, 0.58, 0.11, 0.02, 0.92, 0],
 				[-1.05, 0.45, 0.40, 0.02, 0.72, -0.1],
+				[-1.06, 0.28, 0.29, 0.02, 0.92, 0]
+			] */
+			//todo: czh0510
+			let arr1 = [
+				[-1.04, 0.2, -0.17, 0, 1.07, 0],
+				// [-1.12, 0.45, -0.14, 0, 1.27, 0],
+				[-1.12, 0.45, -0.14, 0.02, 1.27, -0],
+				[-1.13, 0.575, 0.11, 0.02, 0.92, 0],
+				[-1.05, 0.43, 0.40, 0.02, 0.72, -0.1],
 				[-1.06, 0.28, 0.29, 0.02, 0.92, 0]
 			]
 			let arr2 = [
@@ -1229,10 +1265,50 @@
 
 				// pcb盖板
 				if (topicNum.value === 11) {
-					showHelp.value = true;
+					//todo: czh 0510 修复规划pcb盖板的拾取与释放运动路径
+					animateState(arr1[1], 200, () => {
+						animateState(arr1[2], 1000, () => {
+							j63.visible = true;
+							j63.rotation.y += 0.225;
+							xp.visible = false;
+							animateState(arr1[3], 200, () => {
+								animateState(arr1[4], 200, () => {
+									j63.rotation.y -= 0.225;
+									showHelp.value = true;
+									showlr.value = false;
+									j63.visible = true;
+									xp.visible = false;
+									// 进行取吸盘操作
+									cputou.visible = false
+									cpu3.visible = false
+									cpu2.visible = true
+									cpugaizitou.visible = false
+									cpugaizi.visible = false
+									cpugaizikong.visible = true
+									chengpintou.visible = false
+									chengpin.visible = true
+									chengpin2.visible = false
+									startFree([-1.12, 0.45, -0.14, 0, 1.27,
+										0
+									], {
+										x: -50.72,
+										y: 48.58,
+										z: 38.16
+									}, {
+										x: -17.19,
+										y: 23.05,
+										z: 2.33
+									})
+								});
+							});
+						});
+					});
+
+					/* showHelp.value = true;
 					showlr.value = false;
 					j63.visible = true;
 					xp.visible = false;
+					// 进行取吸盘操作
 					cputou.visible = false
 					cpu3.visible = false
 					cpu2.visible = true
@@ -1250,7 +1326,7 @@
 						x: -17.19,
 						y: 23.05,
 						z: 2.33
-					})
+					}) */
 				}
 				if (topicNum.value === 12) {
 					if (bigType !== "教学演示") return;
@@ -1551,9 +1627,10 @@
 				下一步
 			</div>
 		</div>
-		<div class="left_control" v-if="showlr" >
+		<div class="left_control" v-if="showlr">
 			<div :class="!isFold ? 'fold': 'expand'" @click="isFold = !isFold"></div>
-			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div>
+			<div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger"></div>
+			<!-- <div @click="resetDubuggerAnimate" class="rerun" v-show="isDebugger" v-if="mode == '教学演示'"></div> -->
 		</div>
 		<div class="left_box" v-if="showlr" v-show="!isFold">
 			<!-- 操作机器人 -->
@@ -2263,8 +2340,9 @@
 				height: 100%;
 				background-image: url(expand.png);
 			}
-			.rerun{
-				margin-top:20px;
+
+			.rerun {
+				margin-top: 20px;
 				width: 100%;
 				height: 100%;
 				background-image: url(rerun.png);

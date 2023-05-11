@@ -765,23 +765,30 @@
 					antiShakeTimer = null;
 				}, 500)
 			}
+			// let gongzhuangtuopan: any = player.scene.getObjectByName("gongzhuangtuopan");
 			// todo:0508所有的调试程序的动画
 			function allDebuggerAnimate() {
 				if(!isDebugger.value){
 					actionHistory.pushModelsActionHistory([j1, j2, j3, j4, j5, j6], actionEnum.ROTATION);
 				}
+				
+				//todo: 机器人上料程序调试运行， 需要再往右旋转一些
 				if (topicNum.value === 11.5) {
 					if(!isDebugger.value){
-						actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
+						// actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
+						actionHistory.pushModelsActionHistory([cangitemtou], actionEnum.ATTACH);
 						actionHistory.pushModelsActionHistory([jiazi, Group140], actionEnum.POSITION)
 					}
 					isDebugger.value = true;
 					animateState(arr1[0], 1500, () => {
 						animateState(arr1[1], 1500, () => {
+							// todo: 后续优化还需要调整一下旋转角度
+							gongzhuanglungu.rotation.y -= 0.75;
 							animateState(arr1[2], 1500, () => {
 								// j62.visible = false
-								cangitemtou.visible = false;
-								gongzhuanglungu.visible = true;
+								/* cangitemtou.visible = false;
+								gongzhuanglungu.visible = true; */
+								gongzhuangtuopan.attach(cangitemtou);
 								new TWEEN.Tween(jiazi.position)
 									.to({
 										y: -17
@@ -799,16 +806,19 @@
 						});
 					});
 				}
+				// todo: 机器人下料程序调试运行
 				else if (topicNum.value === 13.5) {
 					if(!isDebugger.value){
-						
-						actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
+						actionHistory.pushModelsActionHistory([cangitemtou], actionEnum.ATTACH);
+						// actionHistory.pushModelsActionHistory([cangitemtou, gongzhuanglungu], actionEnum.VISIBLE);
 					}
 					isDebugger.value = true;
 					animateState(arr1[2], 1500, () => {
 						//   j62.visible = true
-						cangitemtou.visible = true;
-						gongzhuanglungu.visible = false;
+						j62.attach(cangitemtou);
+						/* cangitemtou.visible = true;
+						gongzhuanglungu.visible = false; */
+						
 						animateState(arr1[1], 1500, () => {
 							animateState(arr1[0], 1500, () => {});
 						});
@@ -839,10 +849,15 @@
 						.start();
 				}
 			}
-			let arr1 = [
+			/* let arr1 = [
 				[1.67, -0.42, 0.36, 0.02, -1.21, 0],
 				[1.62, -1.38, 1, 0.02, -1.14, 0],
 				[1.62, -1.64, 1, 0.02, -0.95, 0],
+			]; */
+			let arr1 = [
+				[1.639, -0.42, 0.36, 0.02, -1.21, 0],
+				[1.639, -1.38, 1, 0.02, -0.97, 0],
+				[1.641, -1.644, 1, 0.02, -0.97, 0],
 			];
 			watch(topicNum, () => {
 				emit("changeTopicNum", topicNum.value);
